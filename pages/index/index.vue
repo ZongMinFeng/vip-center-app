@@ -55,7 +55,7 @@
 							}
 						});
 						uni.request({
-							url: 'http://192.168.50.104:8801/login/miniProgramLogin',//登录的域名完整链接，可以换成你们自己的。
+							url: 'http://192.168.50.103:8801/login/miniProgramLogin',//登录的域名完整链接，可以换成你们自己的。
 							data: {
 								code: code,	
 								channelId:'miniProgram'
@@ -66,10 +66,32 @@
 							},
 							success: (res) => {
 								console.log('res', res)
-								that.userInfo = res.data.data.userInfo
+								let resultCode=res.data.resultCode
+								let resultMsg = res.data.resultMsg
+								let data = res.data.data
+								if(resultCode!='00000'){
+									//错误
+									console.error(resultMsg)
+									uni.showToast({
+										title:resultMsg
+									})
+									return
+								}
+								
+								//需要登录
+								if(data.needAuth!=null&&data.needAuth=='T'){
+									uni.reLaunch({
+										url: '/pages/login/login?unionId='+encodeURIComponent(data.unionId)
+									});
+									return
+								}
+								
+								//不需要登录
+								that.userInfo = data.userInfo
 								uni.reLaunch({
 									url: '/pages/home/home?userInfo='+encodeURIComponent(JSON.stringify(that.userInfo))
 								});
+								
 							}
 						});
 					},
