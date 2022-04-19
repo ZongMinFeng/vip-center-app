@@ -1,12 +1,7 @@
 <template>
 	<view>
 		<view class="bg_pink qrCode-box">
-			<!-- <tki-qrcode
-				class="qrCode"
-				ref="qrcode"
-				:size="525"
-				:val="qrCode"
-				:loadMake="loadMake"></tki-qrcode> -->
+			<uqrcode class="qrCode" ref="uQRCode" :text="randomCode" />
 			<view class="refresh">
 				{{userInfo.nickName}}:你好！
 				{{refreshTime}} 秒后刷新
@@ -16,26 +11,59 @@
 </template>
 
 <script>
-	import tkiQrcode from "@/components/tki-qrcode/tki-qrcode.vue"
 	export default{
 		comments:{
-			tkiQrcode
 		},
 		data(){
 			return{
 				refreshTime:10,
 				qrCode:'1234567890',
 				loadMake: true, // 组件加载完成后自动生成二维码
-				userInfo:{}
+				userInfo:{},
+				token:'',
+				randomCode:''
 			}
 		},
 		
 		onLoad(option) {
 			this.userInfo = JSON.parse(decodeURIComponent(option.userInfo))
+			this.token = decodeURIComponent(option.token)
+			
+			//获取用户随机码
+			this.getUserRandomCode()
 		},
 		
 		methods:{
-			
+			getUserRandomCode(){
+				let that = this
+				uni.request({
+					url: 'http://127.0.0.1:8801/login/randomCode',
+					data:{
+						"channelId":"miniProgram"
+					},
+					method:"POST",
+					header:{
+						"X-TOKEN": that.token
+					},
+					success:(res)=>{
+						if(res.data.resultCode!='00000'){
+							uni.showToast({
+								title:res.data.resultMsg,
+								icon:'none',
+								duration:5000
+							})
+						}
+						console.log('获取用户随机码', res)
+						that.randomCode = res.data.data.randomCode
+						console.log("randomCode:", that.randomCode)
+					},
+					fail:(res)=>{
+						uni.showToast({
+							title:res.data.resultMsg
+						})
+					}
+				})
+			}
 		}
 	}
 </script>

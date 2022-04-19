@@ -4,31 +4,156 @@
 			<view class="welcome blue">欢迎注册会员系统</view>
 			<view class="login-input">
 				<view>
-					<input class="login-input-item red" placeholder="请输入邮箱" />
+					<input class="login-input-item red" placeholder="请输入昵称" v-model="nickName" />
 				</view>
 				<view>
-					<input class="login-input-item red" placeholder="请输入密码" />
+					<input class="login-input-item red" placeholder="请输入邮箱" v-model="mailAddress" />
 				</view>
 				<view>
-					<input class="login-input-item red" placeholder="请确认密码" />
+					<input class="login-input-item red" placeholder="请输入验证码" v-model="mailAuthCode" /><button @click="getAuthCode">获取验证码</button>
 				</view>
-				<button class="login-button">注册</button>
+				<view>
+					<input class="login-input-item red" placeholder="请输入密码" v-model="passwork" />
+				</view>
+				<view>
+					<input class="login-input-item red" placeholder="请确认密码" v-model="passworkCheck" />
+				</view>
+				<button class="login-button" @click="register()">注册</button>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
+	var cryptoUtil = require('@/util/cryptoUtil.js')
+	
 	export default{
 		data(){
 			return{
-				
+				unionId:'',
+				nickName:'',
+				mailAuthCode:'',
+				mailAddress:'',
+				passwork:'',
+				passworkCheck:'',
+				sessionKey:''
 			}
 		},
+		
+		onLoad(option) {
+			this.unionId = decodeURIComponent(option.unionId)
+			this.sessionKey = decodeURIComponent(option.sessionKey)
+		},
+		
 		methods:{
-			newVip(){
-				uni.navigateTo({
-					url:'../newVip/newVip'
+			getAuthCode(){
+				let that = this
+				
+				if(this.sessionKey==null){
+					uni.showToast({
+						title:'sessioKey未准备好，请重新打开小程序!',
+						icon:'none'
+					})
+					return
+				}
+				
+				if(this.mailAddress==''){
+					uni.showToast({
+						title:'请输入邮箱!',
+						icon:'none'
+					})
+					return
+				}
+				
+				uni.request({
+					url:'http://127.0.0.1:8801/auth/mailAuthCode',
+					method:'POST',
+					data:{
+						"channelId":"miniProgram",
+						"unionId":that.unionId,
+						"mailAddress":that.mailAddress
+					}
+				})
+			},
+			
+			register(){
+				let that = this
+				if(this.sessionKey==null){
+					uni.showToast({
+						title:'sessioKey未准备好，请重新打开小程序!',
+						icon:'none'
+					})
+					return
+				}
+				
+				if(this.nickName==''){
+					uni.showToast({
+						icon:'none',
+						title:'请输入昵称'
+					})
+					return
+				}
+				if(this.mailAddress==''){
+					uni.showToast({
+						icon:'none',
+						title:'请输入邮箱'
+					})
+					return
+				}
+				if(this.mailAuthCode==''){
+					uni.showToast({
+						icon:'none',
+						title:'请输入邮箱验证码'
+					})
+					return
+				}
+				if(this.passwork==''){
+					uni.showToast({
+						icon:'none',
+						title:'请输入密码'
+					})
+					return
+				}
+				if(this.passwork!=this.passworkCheck){
+					uni.showToast({
+						icon:'none',
+						title:'密码不一致！'
+					})
+					return
+				}
+				
+				//密码加密
+				let encPassWork = cryptoUtil.encrypt(this.passwork, this.sessionKey)
+				console.log("密码密文："+encPassWork)
+				
+				//邮箱注册
+				uni.request({
+					url:'http://127.0.0.1:8801/register/mailRegister',
+					method:'POST',
+					data:{
+						"channelId":"miniProgram",
+						"unionId":that.unionId,
+						"nickName":that.nickName,
+						"mailAddress":that.mailAddress,
+						"mailAuthCode":that.mailAuthCode,
+						"encPassWork":encPassWork
+					},
+					success: (res) => {
+						if(res.data.resultCode!='00000'){
+							uni.showToast({
+								icon:'none',
+								title:res.data.resultMsg
+							})
+							return
+						}
+						
+						//注册成功，进入主页面
+						uni.reLaunch({
+							url: '/pages/home/home?userInfo=' + encodeURIComponent(
+									JSON.stringify(res.data.data.userInfo)) + '&token=' +
+								encodeURIComponent(res.data.data.token)
+						})
+					}
 				})
 			}
 		}

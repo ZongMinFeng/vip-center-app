@@ -9,7 +9,8 @@
 				<text>获得你的公开信息(昵称，头像、地区等)</text>
 			</view>
 
-			<button class='bottom' type='primary' open-type="getUserInfo" withCredentials="true" lang="zh_CN" @getuserinfo="wxGetUserInfo">
+			<button class='bottom' type='primary' open-type="getUserInfo" withCredentials="true" lang="zh_CN"
+				@getuserinfo="wxGetUserInfo">
 				授权登录
 			</button>
 		</view>
@@ -18,15 +19,28 @@
 </template>
 
 <script>
+	var cryptoUtil = require('@/util/cryptoUtil.js')
+
 	export default {
 		data() {
-			return{
+			return {
 				nickName: '',
 				avatarUrl: '',
 				code: '',
-				userInfo:{}
+				userInfo: {}
 			};
 		},
+
+		onLoad() {
+
+		},
+
+		created() {
+			let desStr = cryptoUtil.encrypt('123456', '1111111111111111') //debug
+			console.log('desStr:' + desStr) //debug
+			return //debug
+		},
+
 		methods: {
 			wxGetUserInfo() {
 				var that = this;
@@ -55,10 +69,10 @@
 							}
 						});
 						uni.request({
-							url: 'http://192.168.50.103:8801/login/miniProgramLogin',//登录的域名完整链接，可以换成你们自己的。
+							url: 'http://127.0.0.1:8801/login/miniProgramLogin',
 							data: {
-								code: code,	
-								channelId:'miniProgram'
+								code: code,
+								channelId: 'miniProgram'
 							},
 							method: 'POST',
 							header: {
@@ -66,46 +80,50 @@
 							},
 							success: (res) => {
 								console.log('res', res)
-								let resultCode=res.data.resultCode
+								let resultCode = res.data.resultCode
 								let resultMsg = res.data.resultMsg
 								let data = res.data.data
-								if(resultCode!='00000'){
+								if (resultCode != '00000') {
 									//错误
 									console.error(resultMsg)
 									uni.showToast({
-										title:resultMsg
+										title: resultMsg
 									})
 									return
 								}
-								
+
 								//需要登录
-								if(data.needAuth!=null&&data.needAuth=='T'){
+								if (data.needAuth != null && data.needAuth == 'T') {
 									uni.reLaunch({
-										url: '/pages/login/login?unionId='+encodeURIComponent(data.unionId)
+										url: '/pages/login/login?unionId=' +
+											encodeURIComponent(data.unionId)
 									});
 									return
 								}
-								
+
 								//不需要登录
 								that.userInfo = data.userInfo
+								that.token = data.token
 								uni.reLaunch({
-									url: '/pages/home/home?userInfo='+encodeURIComponent(JSON.stringify(that.userInfo))
+									url: '/pages/home/home?userInfo=' + encodeURIComponent(
+											JSON.stringify(that.userInfo)) + '&token=' +
+										encodeURIComponent(that.token)
 								});
-								
+
 							}
 						});
 					},
 				});
 			},
-			
-			study(){
+
+			study() {
 				uni.navigateTo({
-					url:'../study/study'
+					url: '../study/study'
 				})
 			}
 		},
 		onLoad() {
-			
+
 		}
 	}
 </script>
@@ -142,4 +160,3 @@
 		font-size: 35rpx;
 	}
 </style>
-

@@ -20,19 +20,49 @@
 	export default{
 		data(){
 			return{
-				
+				unionId:'',
+				sessionKey:''
 			}
 		},
+		
+		onLoad(option) {
+			this.unionId = decodeURIComponent(option.unionId)
+			this.getSessionKey()
+		},
+		
 		methods:{
 			newVip(){
+				if(this.sessionKey==null){
+					uni.showToast({
+						title:"系统还没准备后，请5秒后再试！",
+						icon:'none'
+					})
+					return
+				}
+				let that = this
 				uni.navigateTo({
-					url:'../newVip/newVip'
+					url:'../newVip/newVip?unionId='+encodeURIComponent(that.unionId)+"&sessionKey="+encodeURIComponent(that.sessionKey)
 				})
 			},
 			
 			login(){
 				uni.navigateTo({
 					url:'../home/home'
+				})
+			},
+			
+			getSessionKey(){
+				uni.request({
+					url:'http://127.0.0.1:8801/login/sessionKey',
+					method:"POST",
+					data:{
+						"channelId":"miniProgram",
+						"unionId":this.unionId
+					},
+					success: (res) => {
+						this.sessionKey = res.data.data.sessionKey;
+						console.log('sessionKey:'+this.sessionKey)
+					}
 				})
 			}
 		}
