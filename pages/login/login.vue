@@ -4,10 +4,10 @@
 			<view class="welcome">欢迎登录会员系统</view>
 			<view class="login-input">
 				<view>
-					<input class="login-input-item" placeholder="请输入邮箱" />
+					<input class="login-input-item" placeholder="请输入邮箱" v-model="mailAddress" />
 				</view>
 				<view>
-					<input class="login-input-item" placeholder="请输入密码" />
+					<input class="login-input-item" placeholder="请输入密码" v-model="passWord" />
 				</view>
 				<button class="login-button" @click="login">登录</button>
 				<view class="login-vip-new" @click="newVip">新用户注册</view>
@@ -17,11 +17,17 @@
 </template>
 
 <script>
+	var cryptoUtil = require('@/util/cryptoUtil.js')
+	
 	export default{
 		data(){
 			return{
 				unionId:'',
-				sessionKey:''
+				sessionKey:'',
+				mailAddress:'',
+				passWord:'',
+				userInfo:{},
+				token:''
 			}
 		},
 		
@@ -46,9 +52,64 @@
 			},
 			
 			login(){
-				uni.navigateTo({
-					url:'../home/home'
+				if(this.mailAddress==''){
+					uni.showToast({
+						icon:'none',
+						title:"请输入邮箱！",
+					})
+					return
+				}
+				
+				if(this.passWord==''){
+					uni.showToast({
+						icon:'none',
+						title:'请输入密码！'
+					})
+					return
+				}
+				
+				if(this.sessionKey==''){
+					uni.showToast({
+						icon:'none',
+						title:'获取密钥中----，请稍后再试'
+					})
+					return
+				}
+				
+				//加密
+				let encPassWord = cryptoUtil.encrypt(this.passWord, this.sessionKey)
+				
+				let that = this
+				uni.request({
+					url:'http://127.0.0.1:8801/login/mailPassWordLogin',
+					method:'POST',
+					data:{
+						'channelId':'miniProgram',
+						'unionId':that.unionId,
+						'mailAddress':that.mailAddress,
+						'encPassWord':encPassWord
+					},
+					success: (res) => {
+						if(res.data.resultCode!='00000'){
+							uni.showToast({
+								icon:'none',
+								title:res.data.resultMsg
+							})
+							return
+						}
+						
+						that.userInfo = res.data.data.userInfo
+						that.token = res.data.data.token
+						
+						uni.navigateTo({
+							url:'../home/home?userInfo=' + encodeURIComponent(
+											JSON.stringify(that.userInfo)) + '&token=' +
+										encodeURIComponent(that.token)
+						})
+					}
 				})
+				
+				
 			},
 			
 			getSessionKey(){
