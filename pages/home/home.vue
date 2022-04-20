@@ -11,13 +11,15 @@
 </template>
 
 <script>
+	var constants = require('@/config/baseConfig.js')
+	
 	export default{
 		comments:{
 		},
 		data(){
 			return{
 				refreshTime:10,
-				qrCode:'1234567890',
+				qrCode:'',
 				loadMake: true, // 组件加载完成后自动生成二维码
 				userInfo:{},
 				token:'',
@@ -37,7 +39,7 @@
 			getUserRandomCode(){
 				let that = this
 				uni.request({
-					url: 'http://127.0.0.1:8801/login/randomCode',
+					url: constants.BASE_URL+'/login/randomCode',
 					data:{
 						"channelId":"miniProgram"
 					},

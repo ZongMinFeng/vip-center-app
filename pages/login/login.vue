@@ -18,6 +18,7 @@
 
 <script>
 	var cryptoUtil = require('@/util/cryptoUtil.js')
+	var constants = require('@/config/baseConfig.js')
 	
 	export default{
 		data(){
@@ -81,7 +82,7 @@
 				
 				let that = this
 				uni.request({
-					url:'http://127.0.0.1:8801/login/mailPassWordLogin',
+					url:constants.BASE_URL+'/login/mailPassWordLogin',
 					method:'POST',
 					data:{
 						'channelId':'miniProgram',
@@ -114,7 +115,7 @@
 			
 			getSessionKey(){
 				uni.request({
-					url:'http://127.0.0.1:8801/login/sessionKey',
+					url:constants.BASE_URL+'/login/sessionKey',
 					method:"POST",
 					data:{
 						"channelId":"miniProgram",

@@ -20,6 +20,7 @@
 
 <script>
 	var cryptoUtil = require('@/util/cryptoUtil.js')
+	var constants = require('@/config/baseConfig.js')
 
 	export default {
 		data() {
@@ -69,7 +70,7 @@
 							}
 						});
 						uni.request({
-							url: 'http://127.0.0.1:8801/login/miniProgramLogin',
+							url: constants.BASE_URL + '/login/miniProgramLogin',
 							data: {
 								code: code,
 								channelId: 'miniProgram'
