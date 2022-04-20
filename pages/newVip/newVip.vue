@@ -26,6 +26,7 @@
 
 <script>
 	var cryptoUtil = require('@/util/cryptoUtil.js')
+	var constants = require('@/config/baseConfig.js')
 	
 	export default{
 		data(){
@@ -66,7 +67,7 @@
 				}
 				
 				uni.request({
-					url:'http://127.0.0.1:8801/auth/mailAuthCode',
+					url:constants.BASE_URL+'/auth/mailAuthCode',
 					method:'POST',
 					data:{
 						"channelId":"miniProgram",
@@ -128,7 +129,7 @@
 				
 				//邮箱注册
 				uni.request({
-					url:'http://127.0.0.1:8801/register/mailRegister',
+					url:constants.BASE_URL+'/register/mailRegister',
 					method:'POST',
 					data:{
 						"channelId":"miniProgram",

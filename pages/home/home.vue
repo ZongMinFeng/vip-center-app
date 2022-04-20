@@ -19,7 +19,7 @@
 		data(){
 			return{
 				refreshTime:10,
-				qrCode:'',
+				qrCode:'12345678',
 				loadMake: true, // 组件加载完成后自动生成二维码
 				userInfo:{},
 				token:'',
