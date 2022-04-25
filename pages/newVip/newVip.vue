@@ -50,7 +50,7 @@
 			getAuthCode(){
 				let that = this
 				
-				if(this.sessionKey==null){
+				if(this.sessionKey==''){
 					uni.showToast({
 						title:'sessioKey未准备好，请重新打开小程序!',
 						icon:'none'
