@@ -1,22 +1,25 @@
 <template>
 	<view class="container">
-		<view class="login-div red">
-			<view class="welcome blue">欢迎注册会员系统</view>
+		<view class="login-div">
+			<view class="welcome">欢迎注册会员系统</view>
 			<view class="login-input">
 				<view>
-					<input class="login-input-item red" placeholder="请输入昵称" v-model="nickName" />
+					<input class="login-input-item" placeholder="请输入昵称" v-model="nickName" />
 				</view>
 				<view>
-					<input class="login-input-item red" placeholder="请输入邮箱" v-model="mailAddress" />
+					<input class="login-input-item" placeholder="请输入邮箱" v-model="mailAddress" />
 				</view>
 				<view>
-					<input class="login-input-item red" placeholder="请输入验证码" v-model="mailAuthCode" /><button @click="getAuthCode">获取验证码</button>
+					<button @click="getAuthCode">获取验证码</button>
 				</view>
 				<view>
-					<input class="login-input-item red" placeholder="请输入密码" v-model="passwork" />
+					<input class="login-input-item" placeholder="请输入验证码" v-model="mailAuthCode" />
 				</view>
 				<view>
-					<input class="login-input-item red" placeholder="请确认密码" v-model="passworkCheck" />
+					<input class="login-input-item" placeholder="请输入密码" v-model="passwork" />
+				</view>
+				<view>
+					<input class="login-input-item" placeholder="请确认密码" v-model="passworkCheck" />
 				</view>
 				<button class="login-button" @click="register()">注册</button>
 			</view>

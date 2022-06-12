@@ -27,5 +27,8 @@
 		background-color: pink;
 	}
 	
+	.bg_blue{
+		background-color: blue;
+	}
 	
 </style>
